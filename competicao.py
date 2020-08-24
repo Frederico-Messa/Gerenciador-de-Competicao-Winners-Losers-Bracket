@@ -70,7 +70,7 @@ else:
 
 while len(winners) + len(losers) > 2:
     if len(losers) >= len(winners):
-        if not askFor(f'Começar fase {faseLosers if len(losers) > 2 and len(winners) == 1 else "final"} da Losers Bracket?'):
+        if not askFor(f'Começar fase {faseLosers if len(losers) > 2 or len(winners) != 1 else "final"} da Losers Bracket?'):
             exit(0)
 
         newLosers = []
