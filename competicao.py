@@ -52,7 +52,7 @@ if loadRetorno is None:
         random.shuffle(grupo)
 
     faseWinners = 1
-    faseLosers = 1
+    faseLosers = 1 if numeroParticipantes > 3*torneioBase//4 else 0
 
     winners = []
     losers = []
@@ -70,13 +70,17 @@ else:
 
 while len(winners) + len(losers) > 2:
     if len(losers) >= len(winners):
-        if not askFor(f'Começar fase {faseLosers if len(losers) > 2 or len(winners) != 1 else "final"} da Losers Bracket?'):
-            exit(0)
+        if faseLosers > 0:
+            if not askFor(f'Começar fase {faseLosers if len(losers) > 2 or len(winners) != 1 else "final"} da Losers Bracket?'):
+                exit(0)
+        else:
+            print('\n\nNão existem perdedores o suficiente para ser necessário fazer uma fase da Losers Bracket, avançando...')
 
         newLosers = []
         for i in range(len(losers) // 2):
             if losers[i] is None:
-                print(f'\nQue legal, {losers[-1-i]} avança imediatamente de fase.')
+                if faseLosers > 0:
+                    print(f'\nQue legal, {losers[-1-i]} avança imediatamente de fase.')
                 newLosers.append(losers[-1-i])
             else:
                 print(f'\nFaça {losers[i]} enfrentar {losers[-1-i]}.')
