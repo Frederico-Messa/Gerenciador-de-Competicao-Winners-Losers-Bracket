@@ -14,6 +14,7 @@ def load(filename):
 def save(filename, data):
     dataFile = open(filename + '.json', 'w')
     dataFile.write(json.dumps(data))
+    print('\n\n--- Progress Saved ---\n\n')
     dataFile.close()
 
 def askFor(mensagem):
@@ -23,6 +24,11 @@ def askFor(mensagem):
             return True
         elif command.lower() in ['n','no']:
             return False
+
+def printMatches(lista):
+    print('\nPartidas da próxima fase:\n')
+    for i in range(len(lista) // 2):
+        print(f'\nPartida {i+1}: [{lista[i] if not lista[i] is None else "_"}] versus [{lista[-1-i] if not lista[-1-i] is None else "_"}].')
 
 loadRetorno = load('competicao')
 
@@ -71,6 +77,7 @@ else:
 while len(winners) + len(losers) > 2:
     if len(losers) >= len(winners):
         if faseLosers > 0:
+            printMatches(losers)
             if not askFor(f'Começar fase {faseLosers if len(losers) > 2 or len(winners) != 1 else "final"} da Losers Bracket?'):
                 exit(0)
         else:
@@ -82,6 +89,10 @@ while len(winners) + len(losers) > 2:
                 if faseLosers > 0:
                     print(f'\nQue legal, {losers[-1-i]} avança imediatamente de fase.')
                 newLosers.append(losers[-1-i])
+            elif losers[-1-i] is None:
+                if faseLosers > 0:
+                    print(f'\nQue legal, {losers[i]} avança imediatamente de fase.')
+                newLosers.append(losers[i])
             else:
                 print(f'\nFaça {losers[i]} enfrentar {losers[-1-i]}.')
                 newLosers.append(input('Qual o nome do vencedor? '))
@@ -90,6 +101,7 @@ while len(winners) + len(losers) > 2:
         faseLosers += 1
 
     else:
+        printMatches(winners)
         if not askFor(f'Começar fase {faseWinners if len(winners) > 2 else "final"} da Winners Bracket?'):
             exit(0)
 
@@ -109,5 +121,9 @@ while len(winners) + len(losers) > 2:
     
     save('competicao', (faseWinners, faseLosers, winners, losers))
 
-print(f'\nA final é entre {winners[0]} e {losers[0]}.')
-input('Enter para encerrar execução.')
+print(f'\nA grande final é entre {winners[0]} e {losers[0]}.')
+
+print(f'\nSe {winners[0]} vencer uma vez, {winners[0]} é campeão.')
+print(f'Por outro lado, se {losers[0]} vencer duas vezes, {losers[0]} é campeão.')
+
+input('\n\nEnter para encerrar execução.')
