@@ -54,11 +54,11 @@ if loadRetorno is None:
 
         for j in range(size[toGrupo[i]]):
             grupo.append(input(''))
-        
+
         random.shuffle(grupo)
 
-    faseWinners = 1
-    faseLosers = 1 if numeroParticipantes > 3*torneioBase//4 else 0
+    faseWinners = 0
+    faseLosersX2 = 2
 
     winners = []
     losers = []
@@ -70,27 +70,28 @@ if loadRetorno is None:
             else:
                 winners.append(None)
 
-    save('competicao', (faseWinners, faseLosers, winners, losers))
+    save('competicao', (faseWinners, faseLosersX2, winners, losers))
 else:
-    faseWinners, faseLosers, winners, losers = loadRetorno
+    faseWinners, faseLosersX2, winners, losers = loadRetorno
 
 while len(winners) + len(losers) > 2:
     if len(losers) >= len(winners):
-        if faseLosers > 0:
+        if faseLosersX2 > 0:
             printMatches(losers)
-            if not askFor(f'Começar fase {faseLosers if len(losers) > 2 or len(winners) != 1 else "final"} da Losers Bracket?'):
+            if not askFor(f'Começar fase {f"{faseLosersX2/2:.1f}" if len(losers) > 2 or len(winners) != 1 else "final"} da Losers Bracket?'):
                 exit(0)
         else:
             print('\n\nNão existem perdedores o suficiente para ser necessário fazer uma fase da Losers Bracket, avançando...')
+            faseLosersX2 += 1
 
         newLosers = []
         for i in range(len(losers) // 2):
             if losers[i] is None:
-                if faseLosers > 0:
+                if faseLosersX2 > 0:
                     print(f'\nQue legal, {losers[-1-i]} avança imediatamente de fase.')
                 newLosers.append(losers[-1-i])
             elif losers[-1-i] is None:
-                if faseLosers > 0:
+                if faseLosersX2 > 0:
                     print(f'\nQue legal, {losers[i]} avança imediatamente de fase.')
                 newLosers.append(losers[i])
             else:
@@ -98,12 +99,16 @@ while len(winners) + len(losers) > 2:
                 newLosers.append(input('Qual o nome do vencedor? '))
         losers = newLosers
 
-        faseLosers += 1
+        faseLosersX2 += 1
 
     else:
         printMatches(winners)
-        if not askFor(f'Começar fase {faseWinners if len(winners) > 2 else "final"} da Winners Bracket?'):
-            exit(0)
+        if faseWinners != 0:
+            if not askFor(f'Começar fase {faseWinners if len(winners) > 2 else "final"} da Winners Bracket?'):
+                exit(0)
+        else:
+            if not askFor(f'Começar fase de abertura?'):
+                exit(0)
 
         newWinners = []
         for i in range(len(winners) // 2):
@@ -118,8 +123,8 @@ while len(winners) + len(losers) > 2:
         winners = newWinners
 
         faseWinners += 1
-    
-    save('competicao', (faseWinners, faseLosers, winners, losers))
+
+    save('competicao', (faseWinners, faseLosersX2, winners, losers))
 
 print(f'\nA grande final é entre {winners[0]} e {losers[0]}.')
 
