@@ -1,6 +1,26 @@
 # Funciona para 4 participantes ou mais.
 
 import json
+from typing import Tuple
+
+def battle(player1: str, player2: str, loserMatters: bool) -> Tuple[str, str]:
+
+    print(f'\nFaça {player1} enfrentar {player2}.')
+
+    winner = input('Qual o nome do vencedor? ')
+
+    if loserMatters:
+        loser = input('E do perdedor? ')
+    else:
+        loser = None
+
+    return winner, loser
+
+def finalBattle(player1: str, player2: str) -> None:
+    print(f'\nA grande final é entre {player1} e {player2}.')
+
+    print(f'\nSe {player1} vencer uma vez, {player1} é campeão.')
+    print(f'Por outro lado, se {player2} vencer duas vezes, {player2} é campeão.')
 
 def load(filename):
     try:
@@ -76,13 +96,9 @@ else:
 
 while len(winners) + len(losers) > 2:
     if len(losers) >= len(winners):
-        if faseLosersX2 > 0:
-            printMatches(losers)
-            if not askFor(f'Começar fase {f"{faseLosersX2/2:.1f}" if len(losers) > 2 or len(winners) != 1 else "final"} da Losers Bracket?'):
-                exit(0)
-        else:
-            print('\n\nNão existem perdedores o suficiente para ser necessário fazer uma fase da Losers Bracket, avançando...')
-            faseLosersX2 += 1
+        printMatches(losers)
+        if not askFor(f'Começar fase {f"{faseLosersX2/2:.1f}" if len(losers) > 2 or len(winners) != 1 else "final"} da Losers Bracket?'):
+            exit(0)
 
         newLosers = []
         for i in range(len(losers) // 2):
@@ -95,8 +111,8 @@ while len(winners) + len(losers) > 2:
                     print(f'\nQue legal, {losers[i]} avança imediatamente de fase.')
                 newLosers.append(losers[i])
             else:
-                print(f'\nFaça {losers[i]} enfrentar {losers[-1-i]}.')
-                newLosers.append(input('Qual o nome do vencedor? '))
+                winner, loser = battle(player1 = losers[i], player2 = losers[-1-i], loserMatters = False)
+                newLosers.append(winner)
         losers = newLosers
 
         faseLosersX2 += 1
@@ -117,18 +133,15 @@ while len(winners) + len(losers) > 2:
                 newWinners.append(winners[i])
                 losers.append(None)
             else:
-                print(f'\nFaça {winners[i]} enfrentar {winners[-1-i]}.')
-                newWinners.append(input('Qual o nome do vencedor? '))
-                losers.append(input('E do perdedor? '))
+                winner, loser = battle(player1 = winners[i], player2 = winners[-1-i], loserMatters = True)
+                newWinners.append(winner)
+                losers.append(loser)
         winners = newWinners
 
         faseWinners += 1
 
     save('competicao', (faseWinners, faseLosersX2, winners, losers))
 
-print(f'\nA grande final é entre {winners[0]} e {losers[0]}.')
-
-print(f'\nSe {winners[0]} vencer uma vez, {winners[0]} é campeão.')
-print(f'Por outro lado, se {losers[0]} vencer duas vezes, {losers[0]} é campeão.')
+finalBattle(player1 = winners[0], player2 = losers[0])
 
 input('\n\nEnter para encerrar execução.')
